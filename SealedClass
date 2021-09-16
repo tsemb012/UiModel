@@ -1,0 +1,80 @@
+//-----Sealedクラスについて
+    sealed class Color {
+        // objectは単一インスタンスのみもつクラスを作るキーワード。
+        // つまりenum定数を作るのとあまり変わらない。
+        object Red: Color()
+        object Green: Color()
+        object Blue: Color()
+
+        // 任意のclassがsealed classの子クラスになれるので
+        // data classでも良い。
+        data class Rgb(val red: Int, val green, val blue): Color()
+        data class Cmyk(val cyan: Int, val magenta: Int, val yellow: Int, val keyPlate: Int): Color()
+}
+
+//-----成功と失敗の表現
+    sealed class Result<V>
+
+    data class Success<V>(val value: V): Result<V>()
+    data class Failure<V>(val reason: Exception): Result<V>()
+
+    fun doSomeProc(): Result<SomeData> {
+
+        ...
+
+        return if (failed) Failure(FailureException())
+            else        Success(someValue)
+    }
+
+
+    val result = doSomeProc()
+    when (result) {
+        // smart castしてます。便利。
+        is Success -> println("data is ${result.value}")
+        is Failure -> println("process failed because ${result.reason}")
+    }
+
+//-----状態管理を表現
+
+//何かのデータを読み込んで、それを表示する画面状態管理クラス
+class SomeScreenModel(private val repo Repository, initState: State = State.NoData){
+    sealed class State {
+        //まだ読み込みしていない状態　//Stateクラスと中身自体は変更ないので、波括弧及びその中のオーバーライドは省略される。
+        object NoData: State()　 
+        //読み込み中　
+        object Loading: State()
+        //読み込み正常完了
+        data class Loaded(val hoge: String, val fuga: Int): State()
+        //読み込み失敗
+        data class LoadFailure(val reason: Throwable): State()
+    }
+}
+
+//ここがよくわからない。RxJavaを知らないと理解できないのかも
+private val subject = BehaviorSubject.createDefault(initState)
+val stateChangeEvent: Observable<State>
+    get() = subject
+
+var currentState: State
+    get() = subject.value
+
+// 読み込む
+fun load() {
+    // メンバのままだと値が変わる可能性がありsmart castが働かないので、一度取り出しておく
+    val currentState = currentState
+    // 読み込み中だったら無視
+    if (currentState is State.Loading) return 
+
+    subject.onNext(State.Loading)
+
+    repo
+        .load()
+        .subscribe({ value ->
+            subject.onNext(State.Loaded(value.hoge, value.fuga))
+        }, { e ->
+            // 例えば失敗を告げるダイアログだけ表示させてから
+            subject.onNext(State.LoadFailure(e))
+            // 未読み込み状態に戻るとか
+            subject.onNext(State.NoData)
+        })
+}

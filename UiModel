@@ -7,3 +7,8 @@ class MyViewModel : ViewModel() {
     val isLoading:LiveData<Boolean> = _isLoading//通信中のステートを表現
     ...
 }
+
+sealed class TextState{
+    data class Loaded(val text: String): TextState
+    object Loading: TextState //objectは単一インスタンスのみもつクラスを作るキーワード
+}
