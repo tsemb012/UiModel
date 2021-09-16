@@ -1,3 +1,7 @@
 //UiModel 
 
-
+class MyViewModel : ViewModel() {
+    private val _text = MutableLiveData<String>("") // 初期化方法は導入しているライブラリによっても違うのでお好きな方法で
+    val text: LiveData<String> = _text
+    …
+}
