@@ -1,15 +1,34 @@
 //UiModel 
 
 class MyViewModel : ViewModel() {
-    private val _text = MutableLiveData<String>("") 
-    val text: LiveData<String> = _text
-    private val _isLoading = MutableLiveData<Boolean>(false)//初期値False
-    val isLoading:LiveData<Boolean> = _isLoading//通信中のステートを表現
+    private val _textState = MutableLiveData<TextState>(TextState.Loading)//１つのLiveDataに統合
+    val textState: LiveData<TextState> = _textState
     ...
 }
 
 sealed class TextState{//LiveDataに状態を持たせる
-    data class Loaded(val text: String): TextState
+    data class Loaded(val text: String): TextState//データと状態を同時に持っている。
     object Loading: TextState //objectは単一インスタンスのみもつクラスを作るキーワード
 }
 //増えていくLiveDataをSealedクラスを用いて管理
+
+
+class MyFragment: Fragment(){
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
+        super.onViewCreated(view, savedInstanceState)
+        myViewModel.TextState.observe(viewLifeCycleOwner){textState ->
+            textView.text = when(textState){
+                is TextState.Loading -> "loading"
+                is TextState.Loaded -> textState.text//Loadedのデータクラスに入っているデータも直接引っ張れる。
+                //sealed classなのでelseを書く必要がない。
+            }
+        }
+                /*
+        これが不要になりました。
+        myViewModel.isLoading.observe(viewLifecycleOwner) {
+        }
+        */
+    }
+    ...
+}
+//ここにどんどんobject LoadError: TextState等を追加すれば、LiveDataが１つで状態を増やしていくことができる。
