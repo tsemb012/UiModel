@@ -8,7 +8,8 @@ class MyViewModel : ViewModel() {
     ...
 }
 
-sealed class TextState{
+sealed class TextState{//LiveDataに状態を持たせる
     data class Loaded(val text: String): TextState
     object Loading: TextState //objectは単一インスタンスのみもつクラスを作るキーワード
 }
+//増えていくLiveDataをSealedクラスを用いて管理
