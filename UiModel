@@ -3,6 +3,8 @@
 class MyViewModel : ViewModel() {
     private val _textState = MutableLiveData<TextState>(TextState.Loading)//１つのLiveDataに統合
     val textState: LiveData<TextState> = _textState
+    private val _listItems = MutableLiveData<List<String>>(listOf())//空のリストを初期値として入れる。
+    val listItems = LiveData<List<String>> = _listItems
     ...
 }
 
