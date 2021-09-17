@@ -45,11 +45,9 @@ class MyFragment: Fragment(){
                 //sealed classなのでelseを書く必要がない。
             }
         }
-                /*
-        これが不要になりました。
-        myViewModel.isLoading.observe(viewLifecycleOwner) {
-        }
-        */
+        //uiModel.listItems表示処理
+        recyclerViewAdapter.notifyDataSetChanged()
+        listItemsCount = uiModel.listItems.size.toString()
     }
     ...
 }
