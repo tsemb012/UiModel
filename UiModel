@@ -1,10 +1,30 @@
 //UiModel 
 
 class MyViewModel : ViewModel() {
-    private val _textState = MutableLiveData<TextState>(TextState.Loading)//１つのLiveDataに統合
-    val textState: LiveData<TextState> = _textState
-    private val _listItems = MutableLiveData<List<String>>(listOf())//空のリストを初期値として入れる。
-    val listItems = LiveData<List<String>> = _listItems
+    // UiModelを利用するときはMutable LiveDataの初期化時に初期データを入れてる。
+    private val _textState = MutableLiveData<TextState>(TextState.Loading)
+    // UiModelを利用するときはLiveData不要
+    //val textState: LiveData<TextState> = _textState
+
+    // UiModelを利用するときはMutable LiveDataの初期化時に初期データを入れてる。
+    private val _listItems = MutableLiveData<List<String>>(listOf())
+    // UiModelを利用するときはLiveData不要
+    // val listItems = LiveData<List<String>> = _listItems
+
+    val UiModel: LiveData<MyUiModel> by lazy {
+        combine(//combine()とはなんぞや？
+            MyUiModel(),
+            _textState,
+            _listItems
+        ){
+            current, textState, listItems ->
+            MyUiModel(
+                current = current,
+                textState = textState,
+                listItems = listItems
+            )
+        }
+    }
     ...
 }
 
