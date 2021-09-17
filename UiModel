@@ -34,3 +34,20 @@ class MyFragment: Fragment(){
     ...
 }
 //ここにどんどんobject LoadError: TextState等を追加すれば、LiveDataが１つで状態を増やしていくことができる。
+
+
+data class MyUiModel(//MyViewModel内のLiveDataをまとめるMyUiModelクラスを定義する。
+    val textState: TextState = TextState.Loading,
+    val listItems: List<String> = listOf()//LiveDataクラスじゃない？
+){
+    companion object {
+        operator fun invoke(//() だけでメソッドを呼び出だすことができる。
+            current: MyUiModel,//instance()はコンパイラにはinstance.invoke()と解釈されます。
+            textState: TextState,
+            listItems: List<String>
+        )= MyUiModel(
+            textState = textState,
+            listItems = listItems
+        )
+    }
+}
